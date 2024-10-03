@@ -1,0 +1,6 @@
+@EADwebservice_HostAddress = http://localhost:5228
+
+GET {{EADwebservice_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
