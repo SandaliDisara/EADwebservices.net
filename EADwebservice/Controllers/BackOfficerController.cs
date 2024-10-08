@@ -78,4 +78,28 @@ public class BackOfficerController : ControllerBase
         await _backOfficerService.DeleteBackOfficerAsync(id);
         return Ok("BackOfficer deleted successfully");
     }
+
+    // POST: api/backofficer/login
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] BackOfficerLoginDto loginDto)
+    {
+        // Authenticate the back officer using the username and password
+        var backOfficer = await _backOfficerService.AuthenticateBackOfficerAsync(loginDto.Username, loginDto.Password);
+
+        if (backOfficer == null)
+        {
+            return Unauthorized("Invalid username or password");
+        }
+
+        // Return back officer details including role, username, and id (without IsActive)
+        var response = new
+        {
+            Id = backOfficer.Id,
+            Username = backOfficer.Username,
+            Role = backOfficer.Role
+        };
+
+        return Ok(response);
+    }
+
 }

@@ -31,7 +31,13 @@ public class VendorService
         var vendor = await GetVendorByIdAsync(vendorId);
         if (vendor == null) throw new Exception("Vendor not found");
 
-        var existingComment = vendor.Comments?.Find(c => c.CustomerId == comment.CustomerId);
+        // Initialize Comments list if null
+        if (vendor.Comments == null)
+        {
+            vendor.Comments = new List<Comment>();
+        }
+
+        var existingComment = vendor.Comments.Find(c => c.CustomerId == comment.CustomerId);
 
         // Update existing comment or add a new one
         if (existingComment != null)
@@ -47,8 +53,11 @@ public class VendorService
         // Recalculate the average ranking
         vendor.AverageRanking = CalculateAverageRanking(vendor.Comments);
 
-        var filter = Builders<Vendor>.Filter.Eq(v => v.Id, vendorId);
-        await _vendors.ReplaceOneAsync(filter, vendor);
+        var update = Builders<Vendor>.Update
+            .Set(v => v.Comments, vendor.Comments)
+            .Set(v => v.AverageRanking, vendor.AverageRanking);
+
+        await _vendors.UpdateOneAsync(v => v.Id == vendorId, update);
     }
 
     // Delete a vendor by Id

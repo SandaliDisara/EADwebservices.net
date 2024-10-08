@@ -1,8 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BCrypt.Net;  // Make sure to include this
+using BCrypt.Net; // To hash and verify passwords
+using Microsoft.Extensions.Configuration;
 
 public class BackOfficerService
 {
@@ -10,61 +10,104 @@ public class BackOfficerService
 
     public BackOfficerService(IConfiguration config)
     {
-        // Initialize the MongoDB client and collection from the config
         var client = new MongoClient(config.GetSection("MongoDBSettings:ConnectionString").Value);
         var database = client.GetDatabase(config.GetSection("MongoDBSettings:DatabaseName").Value);
         _backOfficers = database.GetCollection<BackOfficer>(config.GetSection("MongoDBSettings:BackOfficerCollectionName").Value);
     }
 
-    // Get all BackOfficers
-    public async Task<List<BackOfficer>> GetAllBackOfficersAsync() =>
-        await _backOfficers.Find(bo => true).ToListAsync();
+    // Get all back officers
+    public async Task<List<BackOfficer>> GetAllBackOfficersAsync()
+    {
+        try
+        {
+            return await _backOfficers.Find(backOfficer => true).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Could not fetch back officers", ex);
+        }
+    }
 
-    // Get a single BackOfficer by Id
+    // Get back officer by ID
     public async Task<BackOfficer> GetBackOfficerByIdAsync(string id)
     {
-        if (!ObjectId.TryParse(id, out var objectId))
+        try
         {
-            throw new FormatException("Invalid ObjectId format.");
+            return await _backOfficers.Find(backOfficer => backOfficer.Id == id).FirstOrDefaultAsync();
         }
-
-        return await _backOfficers.Find(bo => bo.Id == objectId.ToString()).FirstOrDefaultAsync();
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Could not fetch the back officer", ex);
+        }
     }
 
-    // Create a new BackOfficer
+    // Create a new back officer (hash the password)
     public async Task CreateBackOfficerAsync(BackOfficer backOfficer)
     {
-        // Hash the password before saving (recommended)
-        backOfficer.Password = BCrypt.Net.BCrypt.HashPassword(backOfficer.Password);
-        await _backOfficers.InsertOneAsync(backOfficer);
+        try
+        {
+            // Hash the password before saving
+            backOfficer.Password = BCrypt.Net.BCrypt.HashPassword(backOfficer.Password);
+            await _backOfficers.InsertOneAsync(backOfficer);
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Could not create the back officer", ex);
+        }
     }
 
-    // Update an existing BackOfficer
+    // Update an existing back officer
     public async Task UpdateBackOfficerAsync(string id, BackOfficer updatedBackOfficer)
     {
-        // Ensure the Id is not altered
-        updatedBackOfficer.Id = id;
-
-        // Hash the password if it's changed
-        var existingOfficer = await GetBackOfficerByIdAsync(id);
-        if (!BCrypt.Net.BCrypt.Verify(updatedBackOfficer.Password, existingOfficer.Password))
+        try
         {
+            var filter = Builders<BackOfficer>.Filter.Eq(bo => bo.Id, id);
             updatedBackOfficer.Password = BCrypt.Net.BCrypt.HashPassword(updatedBackOfficer.Password);
+            await _backOfficers.ReplaceOneAsync(filter, updatedBackOfficer);
         }
-
-        var filter = Builders<BackOfficer>.Filter.Eq(bo => bo.Id, id);
-        await _backOfficers.ReplaceOneAsync(filter, updatedBackOfficer);
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Could not update the back officer", ex);
+        }
     }
 
-    // Delete a BackOfficer by Id
+    // Delete back officer
     public async Task DeleteBackOfficerAsync(string id)
     {
-        if (!ObjectId.TryParse(id, out var objectId))
+        try
         {
-            throw new FormatException("Invalid ObjectId format.");
+            await _backOfficers.DeleteOneAsync(bo => bo.Id == id);
         }
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Could not delete the back officer", ex);
+        }
+    }
 
-        var filter = Builders<BackOfficer>.Filter.Eq(bo => bo.Id, objectId.ToString());
-        await _backOfficers.DeleteOneAsync(filter);
+    // Authenticate back officer using username and password, also check if account is active
+    public async Task<BackOfficer> AuthenticateBackOfficerAsync(string username, string password)
+    {
+        try
+        {
+            var backOfficer = await _backOfficers.Find(bo => bo.Username == username).FirstOrDefaultAsync();
+
+            // Check if back officer exists, if password matches, and if the account is active
+            if (backOfficer == null || !BCrypt.Net.BCrypt.Verify(password, backOfficer.Password) || !backOfficer.IsActive)
+            {
+                return null; // Invalid credentials or inactive account
+            }
+
+            return backOfficer; // Valid credentials
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            throw new Exception("Error during authentication", ex);
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace EADwebservice.Services
 {
     public interface IOrderService
     {
-        // Get all orders (optional, depending on app requirements)
+        // Get all orders (for admin or CSR to see all orders)
         Task<List<Order>> GetAllOrdersAsync();
 
         // Get a specific order by ID
@@ -14,6 +14,9 @@ namespace EADwebservice.Services
 
         // Get all orders for a specific customer
         Task<List<Order>> GetOrdersByCustomerIdAsync(string customerId);
+
+        // Get all orders containing products associated with a specific vendor
+        Task<List<Order>> GetOrdersByVendorIdAsync(string vendorId); // New method for vendors to see their product orders
 
         // Create a new order
         Task CreateOrderAsync(Order order);

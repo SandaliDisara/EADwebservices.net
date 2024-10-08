@@ -3,12 +3,21 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// Represents an order placed by a customer in the e-commerce application.
+/// </summary>
+/// 
+/// <remarks>
+/// The Order class stores details about the order, including the customer information,
+/// the products ordered, total price, status, and the address for delivery.
+/// </remarks>
+
 namespace EADwebservice.Models
 {
     public class Order
     {
-        [BsonId]  
-        [BsonRepresentation(BsonType.ObjectId)]  
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; } // Nullable string, MongoDB will generate the Id if null
 
         [BsonRepresentation(BsonType.ObjectId)]
@@ -25,6 +34,16 @@ namespace EADwebservice.Models
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Represents a product in an order.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// The OrderProduct class holds details about each product included in an order,
+    /// such as its ID, name, quantity, price, and status. It also associates each product
+    /// with the vendor that owns it.
+    /// </remarks>
+    /// 
     public class OrderProduct
     {
         [BsonRepresentation(BsonType.ObjectId)]
@@ -37,5 +56,9 @@ namespace EADwebservice.Models
         public decimal Price { get; set; }
 
         public string ProductStatus { get; set; } = "Ordered"; // Status for individual products
+
+        // New field to associate the product with a vendor
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string VendorId { get; set; } // Reference to the vendor who owns the product
     }
 }

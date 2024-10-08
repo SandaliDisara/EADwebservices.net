@@ -2,6 +2,16 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
+/// <summary>
+/// Represents a customer in the e-commerce application.
+/// </summary>
+/// 
+/// <remarks>
+/// The Customer class stores the personal information of customers,
+/// including their name, email, password, address, and contact details.
+/// It also maintains the account status and the date when the account was created.
+/// </remarks>
+
 namespace EADwebservice.Models
 {
     public class Customer

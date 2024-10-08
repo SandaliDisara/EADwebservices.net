@@ -30,6 +30,22 @@ public class VendorController : ControllerBase
         return Ok(vendor);
     }
 
+    // GET: api/vendor/{id}/comments - Get comments and ratings for a specific vendor
+    [HttpGet("{id}/comments")]
+    public async Task<IActionResult> GetVendorCommentsAndRatings(string id)
+    {
+        var vendor = await _vendorService.GetVendorByIdAsync(id);
+        if (vendor == null) return NotFound("Vendor not found");
+
+        var commentsAndRatings = new
+        {
+            Comments = vendor.Comments,       // List of customer comments
+            AverageRanking = vendor.AverageRanking // Average ranking for the vendor
+        };
+
+        return Ok(commentsAndRatings);
+    }
+
     // POST: api/vendor - Create a new vendor (only Admin should be allowed)
     [HttpPost]
     public async Task<IActionResult> CreateVendor([FromBody] Vendor vendor)
@@ -68,5 +84,4 @@ public class VendorController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
 }

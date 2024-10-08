@@ -11,6 +11,8 @@ builder.Services.AddSingleton<BackOfficerService>();
 builder.Services.AddSingleton<VendorService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<NotificationService>();
 
 // Add CORS policy to allow all origins (or restrict to specific IPs if needed)
 builder.Services.AddCors(options =>

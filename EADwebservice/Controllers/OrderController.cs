@@ -43,6 +43,28 @@ namespace EADwebservice.Controllers
             return Ok(orders);
         }
 
+        // Get all orders for administrators and CSRs
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            if (orders == null || orders.Count == 0)
+                return NotFound("No orders found");
+
+            return Ok(orders);
+        }
+
+        // New API to get orders containing vendor products by vendorId
+        [HttpGet("vendor/{vendorId}")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByVendorId(string vendorId)
+        {
+            var orders = await _orderService.GetOrdersByVendorIdAsync(vendorId);
+            if (orders == null || orders.Count == 0)
+                return NotFound("No orders found for this vendor");
+
+            return Ok(orders);
+        }
+
         // Update order status
         [HttpPut("{orderId}/status")]
         public async Task<ActionResult> UpdateOrderStatus(string orderId, [FromBody] string status)

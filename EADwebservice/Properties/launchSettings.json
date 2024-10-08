@@ -14,7 +14,7 @@
             "dotnetRunMessages": true,
             "launchBrowser": true,
             "launchUrl": "swagger",
-            "applicationUrl": "http://192.168.1.229:5228", // Allow access from any IP address
+            "applicationUrl": "http://172.28.28.30:5228", // Allow access from any IP address
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
@@ -24,7 +24,7 @@
             "dotnetRunMessages": true,
             "launchBrowser": true,
             "launchUrl": "swagger",
-            "applicationUrl": "http://192.168.1.229:5228", // Use HTTP only for external access
+            "applicationUrl": "http://172.28.28.30:5228", // Use HTTP only for external access
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
