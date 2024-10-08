@@ -10,7 +10,6 @@ using MongoDB.Bson.Serialization.Attributes;
 /// price, category, stock quantity, and associated vendor. It also indicates whether
 /// the product is active or not, which can be used for inventory management.
 /// </remarks>
-
 public class Product
 {
     [BsonId]
@@ -26,4 +25,6 @@ public class Product
 
     [BsonRepresentation(BsonType.ObjectId)] // Storing VendorID as an ObjectId
     public string VendorID { get; set; } // New VendorID field to link products to vendors
+
+    public string ImageURL { get; set; } // URL of the product image
 }

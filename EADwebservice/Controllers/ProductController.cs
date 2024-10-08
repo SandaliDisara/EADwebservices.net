@@ -49,9 +49,9 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateProduct([FromBody] Product product)
     {
-        if (product == null || string.IsNullOrEmpty(product.VendorID))
+        if (product == null || string.IsNullOrEmpty(product.VendorID) || string.IsNullOrEmpty(product.ImageURL))
         {
-            return BadRequest("Product and VendorID are required.");
+            return BadRequest("Product, VendorID, and ImageURL are required.");
         }
 
         await _productService.CreateProductAsync(product);
@@ -62,9 +62,9 @@ public class ProductsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product updatedProduct)
     {
-        if (string.IsNullOrEmpty(updatedProduct.VendorID))
+        if (string.IsNullOrEmpty(updatedProduct.VendorID) || string.IsNullOrEmpty(updatedProduct.ImageURL))
         {
-            return BadRequest("VendorID is required for updating a product.");
+            return BadRequest("VendorID and ImageURL are required for updating a product.");
         }
 
         var product = await _productService.GetProductByIdAsync(id);
